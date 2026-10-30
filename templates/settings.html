@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Settings | {{ app_name }}{% endblock %}
+{% block page_title %}System Configuration & Node Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="row g-4">
+    <!-- Main Settings Form -->
+    <div class="col-lg-8">
+      <div class="glass-panel p-4">
+        <h5 class="fw-bold text-white mb-3">
+          <i class="fa-solid fa-sliders me-2" style="color: var(--color-primary);"></i>Second-Brain Preferences
+        </h5>
+
+        <form id="settingsForm" onsubmit="handleSaveSettings(event)">
+          <!-- User Profile -->
+          <div class="mb-4">
+            <h6 class="text-white fw-semibold mb-2" style="font-size: 0.9rem;">User Identity</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Display Name</label>
+                <input type="text" id="setUserName" name="user_name" class="form-control bg-dark text-white border-0" value="Mausam Kumar">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">GitHub Username</label>
+                <input type="text" id="setGithubUser" name="github_username" class="form-control bg-dark text-white border-0" value="mausam-dev">
+              </div>
+            </div>
+          </div>
+
+          <hr style="border-color: rgba(90, 62, 43, 0.35);">
+
+          <!-- Local AI Engine Configuration -->
+          <div class="mb-4">
+            <h6 class="text-white fw-semibold mb-2" style="font-size: 0.9rem;">Local AI & Ollama Configuration</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Ollama Server Base URL</label>
+                <input type="text" id="setOllamaUrl" name="ollama_url" class="form-control bg-dark text-white border-0 font-mono" value="http://localhost:11434">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Active AI Model</label>
+                <select id="setAiModel" name="ai_model" class="form-select bg-dark text-white border-0">
+                  <option value="llama3:8b" selected>Llama 3 (8B) - Recommended</option>
+                  <option value="mistral:7b">Mistral (7B)</option>
+                  <option value="phi3:mini">Phi-3 Mini</option>
+                  <option value="neural-chat">Neural Chat</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Whisper Speech-To-Text Mode</label>
+                <select id="setWhisperMode" name="whisper_mode" class="form-select bg-dark text-white border-0">
+                  <option value="demo" selected>Automatic (Local if installed, else Demo)</option>
+                  <option value="local">Force Local Whisper</option>
+                  <option value="simulated">Always Demo / Simulation</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Global Demo Mode Flag</label>
+                <select id="setDemoMode" name="demo_mode" class="form-select bg-dark text-white border-0">
+                  <option value="true" selected>Enabled (Full offline demonstration)</option>
+                  <option value="false">Disabled (Strict production hardware check)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <hr style="border-color: rgba(90, 62, 43, 0.35);">
+
+          <!-- ESP32 Hardware Network Configuration -->
+          <div class="mb-4">
+            <h6 class="text-white fw-semibold mb-2" style="font-size: 0.9rem;">ESP32 Hardware Terminal</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">ESP32 IP Address</label>
+                <input type="text" id="setEsp32Ip" name="esp32_ip" class="form-control bg-dark text-white border-0 font-mono" value="192.168.1.150">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted" style="font-size: 0.8rem;">Browser Notifications</label>
+                <select id="setNotifications" name="notifications_enabled" class="form-select bg-dark text-white border-0">
+                  <option value="true" selected>Enabled</option>
+                  <option value="false">Disabled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary-brain px-4">
+              <i class="fa-solid fa-floppy-disk me-1"></i>Save Configuration
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Danger Zone / Database Reset & Info -->
+    <div class="col-lg-4">
+      <!-- Color Palette Showcase requested by user -->
+      <div class="glass-panel p-4 mb-4">
+        <h6 class="fw-bold text-white mb-2">
+          <i class="fa-solid fa-palette me-2" style="color: var(--color-primary);"></i>Active Color Palette
+        </h6>
+        <p class="text-muted" style="font-size: 0.8rem;">
+          Custom earthy cyberpunk color triad requested:
+        </p>
+        <div class="d-flex flex-column gap-2 font-mono" style="font-size: 0.78rem;">
+          <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: rgba(213, 133, 31, 0.2); border: 1px solid #D5851F;">
+            <span class="text-white">Primary Warm Ochre</span>
+            <strong style="color: #D5851F;">#D5851F</strong>
+          </div>
+          <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: rgba(135, 169, 107, 0.2); border: 1px solid #87A96B;">
+            <span class="text-white">Cyber Asparagus Green</span>
+            <strong style="color: #87A96B;">#87A96B</strong>
+          </div>
+          <div class="d-flex align-items-center justify-content-between p-2 rounded" style="background: rgba(90, 62, 43, 0.4); border: 1px solid #5A3E2B;">
+            <span class="text-white">Deep Bistre Warm Brown</span>
+            <strong style="color: #ffca7b;">#5A3E2B</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Factory Reset Demo Data -->
+      <div class="glass-panel p-4 border border-danger" style="background: rgba(45, 20, 20, 0.5);">
+        <h6 class="fw-bold text-danger mb-2">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>Reset Demo Database
+        </h6>
+        <p class="text-muted" style="font-size: 0.8rem; line-height: 1.5;">
+          Need a fresh slate for your college project viva or live demonstration? Re-initialize SQLite tables with rich sample tasks, habits, and workouts.
+        </p>
+        <button class="btn btn-outline-danger btn-sm w-100 py-2" onclick="resetDatabaseDemo()">
+          <i class="fa-solid fa-rotate-left me-1"></i>Reset & Re-Seed SQLite DB
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  loadCurrentSettings();
+});
+
+async function loadCurrentSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    const data = await res.json();
+    if (data.status !== 'success' || !data.settings) return;
+
+    const s = data.settings;
+    if (s.user_name) document.getElementById('setUserName').value = s.user_name;
+    if (s.github_username) document.getElementById('setGithubUser').value = s.github_username;
+    if (s.ollama_url) document.getElementById('setOllamaUrl').value = s.ollama_url;
+    if (s.ai_model) document.getElementById('setAiModel').value = s.ai_model;
+    if (s.whisper_mode) document.getElementById('setWhisperMode').value = s.whisper_mode;
+    if (s.demo_mode) document.getElementById('setDemoMode').value = s.demo_mode;
+    if (s.esp32_ip) document.getElementById('setEsp32Ip').value = s.esp32_ip;
+    if (s.notifications_enabled) document.getElementById('setNotifications').value = s.notifications_enabled;
+  } catch (err) {
+    console.debug('Settings fetch error:', err);
+  }
+}
+
+async function handleSaveSettings(e) {
+  e.preventDefault();
+  const payload = {
+    user_name: document.getElementById('setUserName').value.trim(),
+    github_username: document.getElementById('setGithubUser').value.trim(),
+    ollama_url: document.getElementById('setOllamaUrl').value.trim(),
+    ai_model: document.getElementById('setAiModel').value,
+    whisper_mode: document.getElementById('setWhisperMode').value,
+    demo_mode: document.getElementById('setDemoMode').value,
+    esp32_ip: document.getElementById('setEsp32Ip').value.trim(),
+    notifications_enabled: document.getElementById('setNotifications').value
+  };
+
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast('Settings saved successfully!', 'success');
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch (err) {
+    showToast('Failed to save settings', 'error');
+  }
+}
+
+async function resetDatabaseDemo() {
+  if (!confirm('Are you sure you want to reset and re-seed the SQLite database with fresh demo data?')) return;
+  try {
+    const res = await fetch('/api/reset-demo', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.href = '/dashboard', 1200);
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch (err) {
+    showToast('Failed to reset database', 'error');
+  }
+}
+</script>
+{% endblock %}

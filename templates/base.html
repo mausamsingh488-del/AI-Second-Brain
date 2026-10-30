@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ app_name }}{% endblock %} | Edge AI & Productivity Hub</title>
+  
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome 6 Icons (CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Futuristic Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar" id="mainSidebar">
+    <div class="sidebar-header">
+      <a href="{{ url_for('main.dashboard') }}" class="d-flex align-items-center gap-3 text-decoration-none">
+        <div class="brand-icon">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 fw-bold text-white tracking-wide" style="letter-spacing: 0.5px;">AI Second-Brain</h6>
+          <small style="color: var(--color-secondary); font-size: 0.72rem; font-weight: 600;">ESP32 • Ollama • Whisper</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="sidebar-section-title">Core Systems</div>
+      <a href="{{ url_for('main.dashboard') }}" class="nav-item-brain {% if request.path == '/dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('main.brain') }}" class="nav-item-brain {% if request.path == '/brain' %}active{% endif %}">
+        <i class="fa-solid fa-microchip"></i>
+        <span>AI Brain</span>
+      </a>
+      <a href="{{ url_for('main.voice') }}" class="nav-item-brain {% if request.path == '/voice' %}active{% endif %}">
+        <i class="fa-solid fa-microphone-lines"></i>
+        <span>Voice Assistant</span>
+      </a>
+
+      <div class="sidebar-section-title">Productivity</div>
+      <a href="{{ url_for('main.tasks') }}" class="nav-item-brain {% if request.path == '/tasks' %}active{% endif %}">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Tasks</span>
+      </a>
+      <a href="{{ url_for('main.reminders') }}" class="nav-item-brain {% if request.path == '/reminders' %}active{% endif %}">
+        <i class="fa-solid fa-bell"></i>
+        <span>Reminders</span>
+      </a>
+      <a href="{{ url_for('main.habits') }}" class="nav-item-brain {% if request.path == '/habits' %}active{% endif %}">
+        <i class="fa-solid fa-fire"></i>
+        <span>Habits</span>
+      </a>
+
+      <div class="sidebar-section-title">Developer & Physical</div>
+      <a href="{{ url_for('main.github') }}" class="nav-item-brain {% if request.path == '/github' %}active{% endif %}">
+        <i class="fa-brands fa-github"></i>
+        <span>GitHub</span>
+      </a>
+      <a href="{{ url_for('main.fitness') }}" class="nav-item-brain {% if request.path == '/fitness' %}active{% endif %}">
+        <i class="fa-solid fa-dumbbell"></i>
+        <span>Fitness</span>
+      </a>
+      <a href="{{ url_for('main.analytics') }}" class="nav-item-brain {% if request.path == '/analytics' %}active{% endif %}">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Analytics</span>
+      </a>
+
+      <div class="sidebar-section-title">Hardware & Config</div>
+      <a href="{{ url_for('main.device') }}" class="nav-item-brain {% if request.path == '/device' %}active{% endif %}">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span>ESP32 Device</span>
+      </a>
+      <a href="{{ url_for('main.settings') }}" class="nav-item-brain {% if request.path == '/settings' %}active{% endif %}">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Settings</span>
+      </a>
+      <a href="{{ url_for('main.download_zip') }}" class="nav-item-brain text-warning" style="background: rgba(213, 133, 31, 0.15); border: 1px dashed var(--color-primary);">
+        <i class="fa-solid fa-file-zipper" style="color: var(--color-primary);"></i>
+        <strong style="color: #ffca7b;">Download ZIP</strong>
+      </a>
+      <a href="{{ url_for('main.index') }}" class="nav-item-brain" target="_blank">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        <span>Landing Page</span>
+      </a>
+    </div>
+
+    <!-- Sidebar footer profile quick badge -->
+    <div class="p-3 border-top" style="border-color: rgba(90, 62, 43, 0.3) !important;">
+      <div class="d-flex align-items-center gap-2">
+        <div class="status-dot status-dot-green"></div>
+        <small class="text-muted" style="font-size: 0.78rem;">Hardware: <strong>ESP32 Active</strong></small>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="main-content">
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-dark d-lg-none" id="sidebarToggle" aria-label="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h5 class="mb-0 fw-semibold text-white d-none d-md-block">{% block page_title %}Dashboard{% endblock %}</h5>
+      </div>
+
+      <!-- Search & quick action bar -->
+      <div class="d-flex align-items-center gap-3">
+        <!-- Live Clock -->
+        <div class="d-none d-xl-flex align-items-center gap-2 px-3 py-1 glass-panel" style="border-radius: 20px; font-size: 0.82rem;">
+          <i class="fa-regular fa-clock" style="color: var(--color-primary);"></i>
+          <span id="liveClock" class="font-mono text-muted">--:--:--</span>
+          <span class="text-dim">•</span>
+          <span class="text-muted">{{ today_date }}</span>
+        </div>
+
+        <!-- AI System Status Pill -->
+        <div class="status-pill d-none d-sm-flex">
+          <span class="status-dot status-dot-green" id="navOllamaDot"></span>
+          <span id="navOllamaStatus" style="font-size: 0.75rem; color: #f5f2eb;">Ollama: Ready</span>
+        </div>
+
+        <!-- Quick Voice Launcher -->
+        <a href="{{ url_for('main.voice') }}" class="btn btn-sm btn-outline-brain d-flex align-items-center gap-2" title="Quick Voice Command">
+          <i class="fa-solid fa-microphone"></i>
+          <span class="d-none d-md-inline">Speak</span>
+        </a>
+
+        <!-- Notifications Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-dark position-relative p-2 rounded-circle" style="background: rgba(40, 30, 22, 0.8); border: 1px solid var(--border-glass);" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa-regular fa-bell" style="color: var(--color-primary);"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background: var(--color-primary); font-size: 0.65rem;">3</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end glass-panel p-2 shadow-lg" style="width: 300px; border-color: rgba(213, 133, 31, 0.3);">
+            <li><h6 class="dropdown-header text-white fw-bold">Recent Alerts</h6></li>
+            <li><hr class="dropdown-divider" style="border-color: rgba(90, 62, 43, 0.4);"></li>
+            <li>
+              <a class="dropdown-item p-2 rounded text-muted" href="{{ url_for('main.reminders') }}" style="font-size: 0.82rem;">
+                <strong class="text-white d-block">Screening Call Today</strong>
+                <span>Recruiter call scheduled for 4:00 PM</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item p-2 rounded text-muted" href="{{ url_for('main.tasks') }}" style="font-size: 0.82rem;">
+                <strong class="text-white d-block">Urgent College Task</strong>
+                <span>Minor Project Presentation due today</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item p-2 rounded text-muted" href="{{ url_for('main.device') }}" style="font-size: 0.82rem;">
+                <strong class="text-white d-block">ESP32 Firmware Node</strong>
+                <span>Mesh Wi-Fi signal healthy (-54 dBm)</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- User Profile Pill -->
+        <div class="d-flex align-items-center gap-2">
+          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80" alt="Avatar" class="rounded-circle border" style="width: 36px; height: 36px; border-color: var(--color-primary) !important; object-fit: cover;">
+          <div class="d-none d-lg-block text-start leading-tight">
+            <div class="fw-semibold text-white" style="font-size: 0.82rem;">Mausam Kumar</div>
+            <div class="text-muted" style="font-size: 0.7rem;">B.Tech CSE</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- DEMO / SIMULATION MODE BANNER -->
+    {% if demo_mode %}
+    <div class="demo-banner">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-circle-check" style="color: var(--color-secondary);"></i>
+        <span><strong>DEMO & SIMULATION MODE ACTIVE:</strong> Full system runs offline without requiring physical ESP32, Ollama server, or Whisper GPU.</span>
+      </div>
+      <a href="{{ url_for('main.settings') }}" class="btn btn-sm btn-dark py-0 px-2 text-warning" style="font-size: 0.72rem; border: 1px solid rgba(213, 133, 31, 0.4);">
+        Configure <i class="fa-solid fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- PAGE INJECTED CONTENT -->
+    <main class="p-3 p-md-4 flex-grow-1">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="p-3 text-center border-top" style="border-color: rgba(90, 62, 43, 0.3) !important; font-size: 0.8rem; color: var(--text-muted);">
+      <div class="container-fluid d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div>
+          <span>AI Second-Brain • Smart Edge Productivity Station &copy; {{ current_year }}</span>
+        </div>
+        <div class="d-flex gap-3 font-mono" style="font-size: 0.75rem;">
+          <span style="color: var(--color-primary);"><i class="fa-solid fa-bolt me-1"></i>Ollama Local</span>
+          <span style="color: var(--color-secondary);"><i class="fa-solid fa-wave-square me-1"></i>Whisper STT</span>
+          <span style="color: #ff9e42;"><i class="fa-solid fa-microchip me-1"></i>ESP32 Node</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Toast Container for Notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2000;">
+  <div id="appToast" class="toast glass-panel text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex align-items-center justify-content-between p-3">
+      <div class="d-flex align-items-center gap-2">
+        <i id="toastIcon" class="fa-solid fa-circle-info" style="color: var(--color-primary); font-size: 1.2rem;"></i>
+        <span id="toastMessage" style="font-size: 0.9rem;">Notification</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Chart.js (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- Global App Script -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

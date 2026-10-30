@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}GitHub Activity | {{ app_name }}{% endblock %}
+{% block page_title %}GitHub Developer Portfolio & Stream{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- TOP PROFILE CARD -->
+  <div class="glass-panel p-4 mb-4">
+    <div class="row align-items-center g-3">
+      <div class="col-md-8">
+        <div class="d-flex align-items-center gap-3">
+          <img id="ghAvatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80" alt="Avatar" class="rounded-circle border" style="width: 72px; height: 72px; border-color: var(--color-primary) !important; object-fit: cover;">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h4 class="fw-bold text-white mb-0" id="ghName">Mausam Kumar</h4>
+              <span class="badge" id="ghStatusBadge" style="background: rgba(135, 169, 107, 0.2); color: var(--color-secondary); border: 1px solid var(--color-secondary); font-size: 0.72rem;">
+                <i class="fa-solid fa-check-circle me-1"></i>Live Sync
+              </span>
+            </div>
+            <div class="text-muted font-mono" id="ghLogin" style="font-size: 0.85rem;">@mausam-dev</div>
+            <p class="text-muted mb-0 mt-1" id="ghBio" style="font-size: 0.85rem;">B.Tech CSE Student | Building hardware-integrated AI agent systems.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick stats -->
+      <div class="col-md-4 text-md-end">
+        <div class="d-inline-flex gap-3 text-center p-2 rounded glass-panel" style="background: rgba(20, 15, 11, 0.6);">
+          <div>
+            <h5 class="fw-bold text-white mb-0" id="ghReposCount">24</h5>
+            <small class="text-muted" style="font-size: 0.7rem;">REPOSITORIES</small>
+          </div>
+          <div class="vr" style="background: rgba(90, 62, 43, 0.5);"></div>
+          <div>
+            <h5 class="fw-bold text-white mb-0" id="ghFollowersCount">185</h5>
+            <small class="text-muted" style="font-size: 0.7rem;">FOLLOWERS</small>
+          </div>
+          <div class="vr" style="background: rgba(90, 62, 43, 0.5);"></div>
+          <div>
+            <h5 class="fw-bold text-white mb-0" id="ghStreakCount" style="color: var(--color-primary);">19d</h5>
+            <small class="text-muted" style="font-size: 0.7rem;">ACTIVE STREAK</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 365-DAY CONTRIBUTION HEATMAP -->
+  <div class="glass-panel p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h6 class="fw-bold text-white mb-0">
+          <i class="fa-solid fa-chart-simple me-2" style="color: var(--color-secondary);"></i>Yearly Contribution Matrix
+        </h6>
+        <small class="text-muted font-mono" id="ghTotalCommitsSummary">642 commits in the last year</small>
+      </div>
+
+      <div class="d-flex align-items-center gap-2" style="font-size: 0.72rem; color: #8E8276;">
+        <span>Less</span>
+        <div class="heatmap-day heatmap-lvl-0"></div>
+        <div class="heatmap-day heatmap-lvl-1"></div>
+        <div class="heatmap-day heatmap-lvl-2"></div>
+        <div class="heatmap-day heatmap-lvl-3"></div>
+        <div class="heatmap-day heatmap-lvl-4"></div>
+        <span>More</span>
+      </div>
+    </div>
+
+    <div class="heatmap-grid" id="ghHeatmapGrid">
+      <div class="text-center py-4 text-muted w-100">
+        <i class="fa-solid fa-spinner fa-spin me-2"></i>Generating contribution heatmap...
+      </div>
+    </div>
+  </div>
+
+  <!-- REPOSITORIES & RECENT ACTIVITY -->
+  <div class="row g-4">
+    <!-- Top Repositories Grid -->
+    <div class="col-lg-8">
+      <div class="glass-panel p-4 h-100">
+        <h6 class="fw-bold text-white mb-3">
+          <i class="fa-solid fa-code-fork me-2" style="color: var(--color-primary);"></i>Highlighted Repositories
+        </h6>
+        <div class="row g-3" id="ghReposGrid">
+          <div class="col-12 text-center py-4 text-muted">Loading repositories...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commit Activity Feed -->
+    <div class="col-lg-4">
+      <div class="glass-panel p-4 h-100">
+        <h6 class="fw-bold text-white mb-3">
+          <i class="fa-solid fa-timeline me-2" style="color: #ffca7b;"></i>Recent Git Activity
+        </h6>
+        <div class="d-flex flex-column gap-3" id="ghActivityFeed">
+          <div class="text-muted text-center py-3">Loading git stream...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/github.js') }}"></script>
+{% endblock %}

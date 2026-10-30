@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | {{ app_name }}{% endblock %}
+{% block page_title %}Mission Control Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- AI SYSTEM HARDWARE STATUS BAR -->
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="glass-panel p-3">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge" style="background: rgba(213, 133, 31, 0.2); color: var(--color-primary); border: 1px solid var(--color-primary);">AI CORE STATUS</span>
+            <small class="text-muted d-none d-sm-inline">Hardware & Local Engine Telemetry</small>
+          </div>
+
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <!-- Ollama -->
+            <div class="d-flex align-items-center gap-2 px-3 py-1 rounded" style="background: rgba(90, 62, 43, 0.25); border: 1px solid rgba(213, 133, 31, 0.2);">
+              <div class="status-dot status-dot-green" id="statOllamaDot"></div>
+              <span class="font-mono" style="font-size: 0.78rem;">Ollama: <strong id="statOllamaText" style="color: var(--color-primary);">Local / Demo</strong></span>
+            </div>
+
+            <!-- Whisper -->
+            <div class="d-flex align-items-center gap-2 px-3 py-1 rounded" style="background: rgba(90, 62, 43, 0.25); border: 1px solid rgba(135, 169, 107, 0.2);">
+              <div class="status-dot status-dot-green" id="statWhisperDot"></div>
+              <span class="font-mono" style="font-size: 0.78rem;">Whisper: <strong id="statWhisperText" style="color: var(--color-secondary);">Ready</strong></span>
+            </div>
+
+            <!-- ESP32 -->
+            <div class="d-flex align-items-center gap-2 px-3 py-1 rounded" style="background: rgba(90, 62, 43, 0.25); border: 1px solid rgba(213, 133, 31, 0.2);">
+              <div class="status-dot status-dot-green" id="statEsp32Dot"></div>
+              <span class="font-mono" style="font-size: 0.78rem;">ESP32 Node: <strong id="statEsp32Text" style="color: #ffca7b;">Simulated</strong></span>
+            </div>
+
+            <!-- Database -->
+            <div class="d-flex align-items-center gap-2 px-3 py-1 rounded" style="background: rgba(90, 62, 43, 0.25); border: 1px solid rgba(135, 169, 107, 0.2);">
+              <div class="status-dot status-dot-green"></div>
+              <span class="font-mono" style="font-size: 0.78rem;">Database: <strong style="color: var(--color-secondary);">Online</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 STATISTIC KPI CARDS -->
+  <div class="row g-3 mb-4">
+    <!-- Tasks Completed -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-muted" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">Tasks Completed</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="kpiTasksCompleted">--</h3>
+            <small class="text-muted" style="font-size: 0.75rem;"><span id="kpiTasksPending" style="color: var(--color-primary);">--</span> pending</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(135, 169, 107, 0.15); color: var(--color-secondary); font-size: 1.3rem;">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Habits -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100 position-relative overflow-hidden glass-card-green">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-muted" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">Active Habits</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="kpiActiveHabits">--</h3>
+            <small style="font-size: 0.75rem; color: var(--color-secondary);"><span id="kpiHabitsDoneToday">--</span> completed today</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(213, 133, 31, 0.15); color: var(--color-primary); font-size: 1.3rem;">
+            <i class="fa-solid fa-fire"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub Contributions -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100 position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-muted" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">GitHub Commits</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="kpiGithubCommits">642</h3>
+            <small style="font-size: 0.75rem; color: #ffb04f;"><i class="fa-solid fa-bolt me-1"></i>19 day streak</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(90, 62, 43, 0.4); color: #ffca7b; font-size: 1.3rem;">
+            <i class="fa-brands fa-github"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workout Sessions -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100 position-relative overflow-hidden glass-card-green">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <span class="text-muted" style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">Workout Sessions</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="kpiWorkouts">--</h3>
+            <small class="text-muted" style="font-size: 0.75rem;"><span id="kpiCalories" style="color: var(--color-secondary);">--</span> kcal burned</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(135, 169, 107, 0.15); color: var(--color-secondary); font-size: 1.3rem;">
+            <i class="fa-solid fa-dumbbell"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB-STATS ROW (Voice Notes & Memories) -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="glass-panel p-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <div class="p-2 rounded-circle" style="background: rgba(213, 133, 31, 0.15); color: var(--color-primary); font-size: 1.2rem;">
+            <i class="fa-solid fa-microphone-lines"></i>
+          </div>
+          <div>
+            <span class="text-muted" style="font-size: 0.75rem;">VOICE AUDIO NOTES</span>
+            <h5 class="fw-bold text-white mb-0" id="kpiVoiceNotes">-- Captured</h5>
+          </div>
+        </div>
+        <a href="{{ url_for('main.voice') }}" class="btn btn-sm btn-outline-brain">Record New</a>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="glass-panel p-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <div class="p-2 rounded-circle" style="background: rgba(135, 169, 107, 0.15); color: var(--color-secondary); font-size: 1.2rem;">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div>
+            <span class="text-muted" style="font-size: 0.75rem;">AI MEMORIES & KNOWLEDGE INDEX</span>
+            <h5 class="fw-bold text-white mb-0" id="kpiAiMemories">-- Interactions</h5>
+          </div>
+        </div>
+        <a href="{{ url_for('main.brain') }}" class="btn btn-sm btn-secondary-brain">Open AI Brain</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTIVITY CHARTS -->
+  <div class="row g-3 mb-4">
+    <!-- Chart 1: Productivity & Task Flow -->
+    <div class="col-lg-8">
+      <div class="glass-panel p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="fw-bold text-white mb-1"><i class="fa-solid fa-chart-line me-2" style="color: var(--color-primary);"></i>7-Day Productivity & Velocity</h6>
+            <small class="text-muted">Task completions and habit execution score</small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge" style="background: rgba(135, 169, 107, 0.2); color: var(--color-secondary); border: 1px solid var(--color-secondary);">Avg: <span id="chartAvgScore">84</span>%</span>
+          </div>
+        </div>
+        <div style="height: 280px; position: relative;">
+          <canvas id="productivityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Category Distribution -->
+    <div class="col-lg-4">
+      <div class="glass-panel p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="fw-bold text-white mb-1"><i class="fa-solid fa-pie-chart me-2" style="color: var(--color-secondary);"></i>Task Domains</h6>
+            <small class="text-muted">Allocation by category</small>
+          </div>
+        </div>
+        <div style="height: 280px; position: relative;" class="d-flex align-items-center justify-content-center">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODAY'S OVERVIEW ACTION GRID -->
+  <div class="row g-3">
+    <!-- Today's Tasks -->
+    <div class="col-lg-6">
+      <div class="glass-panel p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0">
+            <i class="fa-solid fa-list-check me-2" style="color: var(--color-primary);"></i>Today's High-Priority Tasks
+          </h6>
+          <a href="{{ url_for('main.tasks') }}" class="btn btn-sm btn-link text-decoration-none" style="color: var(--color-primary); font-size: 0.8rem;">View All</a>
+        </div>
+        <div id="dashboardTasksList" class="d-flex flex-column gap-2">
+          <div class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>Loading tasks...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Reminders & Habit Progress -->
+    <div class="col-lg-6">
+      <div class="row g-3">
+        <!-- Reminders -->
+        <div class="col-12">
+          <div class="glass-panel p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold text-white mb-0">
+                <i class="fa-solid fa-bell me-2" style="color: #ffb04f;"></i>Today & Upcoming Reminders
+              </h6>
+              <a href="{{ url_for('main.reminders') }}" class="btn btn-sm btn-link text-decoration-none text-muted" style="font-size: 0.8rem;">Manage</a>
+            </div>
+            <div id="dashboardRemindersList" class="d-flex flex-column gap-2">
+              <div class="text-center py-3 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>Loading reminders...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Habits quick toggler -->
+        <div class="col-12">
+          <div class="glass-panel p-4 glass-card-green">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold text-white mb-0">
+                <i class="fa-solid fa-fire me-2" style="color: var(--color-secondary);"></i>Habit Quick Checklist
+              </h6>
+              <a href="{{ url_for('main.habits') }}" class="btn btn-sm btn-link text-decoration-none text-muted" style="font-size: 0.8rem;">Track Streaks</a>
+            </div>
+            <div id="dashboardHabitsList" class="d-flex flex-column gap-2">
+              <div class="text-center py-3 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>Loading habits...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics | {{ app_name }}{% endblock %}
+{% block page_title %}Deep Productivity & Cognitive Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- TOP SUMMARY OVERVIEW -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="glass-panel p-3 h-100">
+        <span class="text-muted" style="font-size: 0.75rem;">PRODUCTIVITY INDEX</span>
+        <h3 class="fw-bold text-white mb-0 mt-1" style="color: var(--color-primary) !important;">87.4</h3>
+        <small style="color: var(--color-secondary);"><i class="fa-solid fa-arrow-trend-up me-1"></i>+8.2% vs last week</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="glass-panel p-3 h-100 glass-card-green">
+        <span class="text-muted" style="font-size: 0.75rem;">TASK COMPLETION VELOCITY</span>
+        <h3 class="fw-bold text-white mb-0 mt-1">4.2 Tasks / Day</h3>
+        <small class="text-muted">Peak output: Thursday</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="glass-panel p-3 h-100">
+        <span class="text-muted" style="font-size: 0.75rem;">HABIT EXECUTION RATE</span>
+        <h3 class="fw-bold text-white mb-0 mt-1">88.5%</h3>
+        <small style="color: #ffca7b;">Top streak: Water (24d)</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="glass-panel p-3 h-100 glass-card-green">
+        <span class="text-muted" style="font-size: 0.75rem;">FITNESS INTENSITY VOLUME</span>
+        <h3 class="fw-bold text-white mb-0 mt-1">1,390 kcal</h3>
+        <small class="text-muted">4 strength sessions logged</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="row g-4 mb-4">
+    <!-- Chart 1: Daily Productivity Score -->
+    <div class="col-lg-8">
+      <div class="glass-panel p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0">
+            <i class="fa-solid fa-chart-line me-2" style="color: var(--color-primary);"></i>7-Day Productivity Dynamics
+          </h6>
+          <span class="badge" style="background: rgba(213, 133, 31, 0.2); color: var(--color-primary);">Composite Score</span>
+        </div>
+        <div style="height: 280px; position: relative;">
+          <canvas id="analyticsProductivityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Domain Allocation Doughnut -->
+    <div class="col-lg-4">
+      <div class="glass-panel p-4 h-100">
+        <h6 class="fw-bold text-white mb-3">
+          <i class="fa-solid fa-pie-chart me-2" style="color: var(--color-secondary);"></i>Time & Effort Domains
+        </h6>
+        <div style="height: 280px; position: relative;">
+          <canvas id="analyticsDomainChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2: HABITS & FITNESS BARS -->
+  <div class="row g-4">
+    <!-- Chart 3: Habit Consistency -->
+    <div class="col-lg-6">
+      <div class="glass-panel p-4 h-100 glass-card-green">
+        <h6 class="fw-bold text-white mb-3">
+          <i class="fa-solid fa-fire me-2" style="color: var(--color-secondary);"></i>Daily Habits Completed
+        </h6>
+        <div style="height: 240px; position: relative;">
+          <canvas id="analyticsHabitsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 4: Fitness Output -->
+    <div class="col-lg-6">
+      <div class="glass-panel p-4 h-100">
+        <h6 class="fw-bold text-white mb-3">
+          <i class="fa-solid fa-dumbbell me-2" style="color: #ffca7b;"></i>Gym Calories Burned
+        </h6>
+        <div style="height: 240px; position: relative;">
+          <canvas id="analyticsFitnessChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  loadAnalyticsCharts();
+});
+
+async function loadAnalyticsCharts() {
+  try {
+    const res = await fetch('/api/analytics');
+    const data = await res.json();
+    if (data.status !== 'success') return;
+
+    // 1. Productivity Chart
+    const ctxProd = document.getElementById('analyticsProductivityChart').getContext('2d');
+    const gradProd = ctxProd.createLinearGradient(0, 0, 0, 250);
+    gradProd.addColorStop(0, 'rgba(213, 133, 31, 0.45)');
+    gradProd.addColorStop(1, 'rgba(213, 133, 31, 0.0)');
+
+    new Chart(ctxProd, {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Productivity Score',
+          data: data.productivity_scores,
+          borderColor: '#D5851F',
+          backgroundColor: gradProd,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 3,
+          pointBackgroundColor: '#D5851F',
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(90, 62, 43, 0.2)' }, ticks: { color: '#9E9185' } },
+          y: { min: 40, max: 100, grid: { color: 'rgba(90, 62, 43, 0.2)' }, ticks: { color: '#9E9185' } }
+        }
+      }
+    });
+
+    // 2. Domain Chart
+    const ctxDomain = document.getElementById('analyticsDomainChart').getContext('2d');
+    new Chart(ctxDomain, {
+      type: 'doughnut',
+      data: {
+        labels: data.categories.labels,
+        datasets: [{
+          data: data.categories.counts,
+          backgroundColor: ['#D5851F', '#ffb04f', '#87A96B', '#5A3E2B', '#a4ce82', '#f3b15f'],
+          borderColor: '#16120e',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#C5BAAF', font: { family: 'Outfit', size: 10 }, boxWidth: 10 } }
+        },
+        cutout: '65%'
+      }
+    });
+
+    // 3. Habits Chart
+    const ctxHabits = document.getElementById('analyticsHabitsChart').getContext('2d');
+    new Chart(ctxHabits, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Habits Completed',
+          data: data.habits_trend,
+          backgroundColor: '#87A96B',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(90, 62, 43, 0.2)' }, ticks: { color: '#9E9185' } },
+          y: { beginAtZero: true, max: 7, grid: { color: 'rgba(90, 62, 43, 0.2)' }, ticks: { color: '#9E9185' } }
+        }
+      }
+    });
+
+    // 4. Fitness Chart
+    const ctxFit = document.getElementById('analyticsFitnessChart').getContext('2d');
+    new Chart(ctxFit, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Calories Burned (kcal)',
+          data: data.calories_trend,
+          backgroundColor: '#ffb04f',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(90, 62, 43, 0.2)' }, ticks: { color: '#9E9185' } },
+          y: { grid: { color: 'rgba(90, 62, 43, 0.2)' }, ticks: { color: '#9E9185' } }
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error('Error loading analytics:', err);
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}AI Brain | {{ app_name }}{% endblock %}
+{% block page_title %}AI Neural Brain Console{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="row g-3">
+    <!-- Main Chat Workspace -->
+    <div class="col-lg-9">
+      <div class="glass-panel p-3 d-flex flex-column" style="height: calc(100vh - 160px);">
+        
+        <!-- Chat Header Bar -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between p-2 mb-2 border-bottom" style="border-color: rgba(90, 62, 43, 0.35) !important;">
+          <div class="d-flex align-items-center gap-3">
+            <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1rem;">
+              <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+              <h6 class="text-white mb-0 fw-bold">Neural Edge Intelligence</h6>
+              <div class="d-flex align-items-center gap-2">
+                <span class="status-dot status-dot-green"></span>
+                <span id="aiActiveEngineBadge" class="text-muted font-mono" style="font-size: 0.72rem;">Model: llama3:8b • Mode: Auto (Local/Demo)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0">
+            <button class="btn btn-sm btn-dark text-muted" onclick="clearAiChat()" title="Clear conversation history" style="border: 1px solid rgba(90, 62, 43, 0.4);">
+              <i class="fa-solid fa-trash-can me-1"></i>Clear Chat
+            </button>
+            <span class="badge" id="aiModePill" style="background: rgba(213, 133, 31, 0.2); color: var(--color-primary); border: 1px solid var(--color-primary); font-size: 0.75rem;">
+              Demo / Local Safe
+            </span>
+          </div>
+        </div>
+
+        <!-- Chat Stream Window -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-spinner fa-spin me-2"></i>Accessing neural memory bank...
+          </div>
+        </div>
+
+        <!-- Typing Indicator (Hidden by default) -->
+        <div id="typingIndicator" class="px-4 py-2 d-none align-items-center gap-2 text-muted" style="font-size: 0.82rem;">
+          <i class="fa-solid fa-brain fa-bounce" style="color: var(--color-primary);"></i>
+          <span>Second-Brain is synthesizing insights...</span>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="d-flex gap-2 overflow-x-auto py-2 px-2" style="white-space: nowrap;">
+          <button class="btn btn-sm glass-panel py-1 px-3 text-muted" style="font-size: 0.75rem; border-color: rgba(213, 133, 31, 0.25);" onclick="sendQuickPrompt('Summarize today\'s priorities and college deadlines')">
+            🎯 Today's Priorities
+          </button>
+          <button class="btn btn-sm glass-panel py-1 px-3 text-muted" style="font-size: 0.75rem; border-color: rgba(135, 169, 107, 0.25);" onclick="sendQuickPrompt('What is the hardware architecture of the ESP32 Second Brain?')">
+            ⚡ ESP32 Architecture
+          </button>
+          <button class="btn btn-sm glass-panel py-1 px-3 text-muted" style="font-size: 0.75rem; border-color: rgba(90, 62, 43, 0.4);" onclick="sendQuickPrompt('Review my gym progressive overload and workout history')">
+            💪 Fitness History
+          </button>
+          <button class="btn btn-sm glass-panel py-1 px-3 text-muted" style="font-size: 0.75rem; border-color: rgba(213, 133, 31, 0.25);" onclick="sendQuickPrompt('How is my GitHub commit streak performing this month?')">
+            💻 GitHub Streak
+          </button>
+        </div>
+
+        <!-- Input Box -->
+        <form id="aiChatForm" class="p-2 border-top d-flex gap-2" style="border-color: rgba(90, 62, 43, 0.35) !important;" onsubmit="handleChatSubmit(event)">
+          <input type="text" id="chatInput" class="form-control text-white" placeholder="Ask your Second Brain anything (tasks, code, hardware, fitness)..." style="background: rgba(30, 22, 16, 0.8); border: 1px solid var(--border-glass); border-radius: 12px; font-size: 0.9rem;" autocomplete="off">
+          
+          <a href="{{ url_for('main.voice') }}" class="btn btn-dark d-flex align-items-center justify-content-center" style="background: rgba(90, 62, 43, 0.3); border: 1px solid rgba(213, 133, 31, 0.3); color: var(--color-primary); width: 44px; border-radius: 12px;" title="Speak to AI">
+            <i class="fa-solid fa-microphone"></i>
+          </a>
+
+          <button type="submit" id="sendChatBtn" class="btn btn-primary-brain d-flex align-items-center gap-2" style="border-radius: 12px; min-width: 90px; justify-content: center;">
+            <span>Send</span>
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- Right Sidebar: Context & System Guide -->
+    <div class="col-lg-3">
+      <!-- Ollama Integration Card -->
+      <div class="glass-panel p-3 mb-3">
+        <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-bolt me-2" style="color: var(--color-primary);"></i>Local Model Engine</h6>
+        <p class="text-muted" style="font-size: 0.8rem; line-height: 1.5;">
+          When <strong>Ollama</strong> is installed and running on your system, the Second-Brain queries your local models natively via <code>http://localhost:11434</code>.
+        </p>
+        <div class="p-2 rounded mb-3" style="background: rgba(90, 62, 43, 0.3); border: 1px solid rgba(90, 62, 43, 0.4);">
+          <small class="text-muted d-block" style="font-size: 0.72rem;">Start Ollama Locally:</small>
+          <code class="text-warning" style="font-size: 0.75rem;">ollama run llama3</code>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <i class="fa-solid fa-shield-halved" style="color: var(--color-secondary);"></i>
+          <small class="text-muted" style="font-size: 0.75rem;">Automatic fallback to Demo AI if offline.</small>
+        </div>
+      </div>
+
+      <!-- Quick Second Brain Memory Context -->
+      <div class="glass-panel p-3 glass-card-green">
+        <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-database me-2" style="color: var(--color-secondary);"></i>Second Brain Knowledge</h6>
+        <div class="d-flex flex-column gap-2" style="font-size: 0.78rem;">
+          <div class="d-flex justify-content-between text-muted border-bottom pb-1" style="border-color: rgba(90, 62, 43, 0.3) !important;">
+            <span>Academic Target:</span>
+            <strong class="text-white">B.Tech CSE</strong>
+          </div>
+          <div class="d-flex justify-content-between text-muted border-bottom pb-1" style="border-color: rgba(90, 62, 43, 0.3) !important;">
+            <span>Hardware Connected:</span>
+            <strong style="color: var(--color-secondary);">ESP32-S3 Node</strong>
+          </div>
+          <div class="d-flex justify-content-between text-muted border-bottom pb-1" style="border-color: rgba(90, 62, 43, 0.3) !important;">
+            <span>Audio Pipeline:</span>
+            <strong class="text-white">Whisper STT (16kHz)</strong>
+          </div>
+          <div class="d-flex justify-content-between text-muted">
+            <span>Primary Focus:</span>
+            <strong style="color: #ffca7b;">Edge AI & Systems</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  loadChatHistory();
+});
+
+async function loadChatHistory() {
+  const container = document.getElementById('chatMessages');
+  try {
+    const res = await fetch('/api/ai/history');
+    const data = await res.json();
+    if (data.status !== 'success' || !data.messages || data.messages.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-5 text-muted">
+          <div class="brand-icon mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <h5 class="text-white">Your AI Second-Brain is Online</h5>
+          <p style="max-width: 450px; margin: 0 auto; font-size: 0.85rem;">
+            Ask questions, retrieve memories, review tasks, analyze your workouts, or ask about your ESP32 hardware node.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = data.messages.map(m => renderBubble(m)).join('');
+    scrollToBottom();
+  } catch (err) {
+    container.innerHTML = `<div class="text-danger text-center">Failed to load history</div>`;
+  }
+}
+
+function renderBubble(m) {
+  if (m.role === 'user') {
+    return `
+      <div class="chat-bubble-user">
+        <div style="font-size: 0.92rem;">${escapeHtml(m.message)}</div>
+        <div class="text-end text-white-50 mt-1" style="font-size: 0.68rem;">You • ${formatTime(m.created_at)}</div>
+      </div>
+    `;
+  } else {
+    // Assistant
+    return `
+      <div class="chat-bubble-ai">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-brain" style="color: var(--color-primary);"></i>
+            <strong class="text-white" style="font-size: 0.8rem;">Second Brain</strong>
+            <span class="badge" style="background: rgba(135, 169, 107, 0.2); color: var(--color-secondary); font-size: 0.65rem;">${m.mode || 'AI'}</span>
+          </div>
+          <button class="btn btn-sm btn-link text-muted p-0" title="Copy response" onclick="copyText(this)">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
+        <div class="ai-content" style="font-size: 0.92rem;">${formatMarkdown(m.message)}</div>
+        <div class="text-muted mt-2 font-mono" style="font-size: 0.68rem;">${formatTime(m.created_at)} • ${m.model_used || 'edge'}</div>
+      </div>
+    `;
+  }
+}
+
+async function handleChatSubmit(e) {
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  const container = document.getElementById('chatMessages');
+
+  // Immediately append user bubble
+  container.insertAdjacentHTML('beforeend', renderBubble({
+    role: 'user',
+    message: text,
+    created_at: new Date().toISOString()
+  }));
+  scrollToBottom();
+
+  // Show typing indicator
+  const indicator = document.getElementById('typingIndicator');
+  indicator.classList.remove('d-none');
+  indicator.classList.add('d-flex');
+
+  try {
+    const res = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await res.json();
+    indicator.classList.add('d-none');
+    indicator.classList.remove('d-flex');
+
+    if (data.status === 'success') {
+      container.insertAdjacentHTML('beforeend', renderBubble({
+        role: 'assistant',
+        message: data.response,
+        mode: data.mode,
+        model_used: data.model,
+        created_at: new Date().toISOString()
+      }));
+
+      // Update badge
+      document.getElementById('aiActiveEngineBadge').textContent = `Model: ${data.model} • Mode: ${data.mode}`;
+      scrollToBottom();
+    } else {
+      showToast('AI error: ' + (data.message || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    indicator.classList.add('d-none');
+    indicator.classList.remove('d-flex');
+    showToast('Failed to contact AI server', 'error');
+  }
+}
+
+function sendQuickPrompt(promptText) {
+  document.getElementById('chatInput').value = promptText;
+  document.getElementById('aiChatForm').dispatchEvent(new Event('submit'));
+}
+
+async function clearAiChat() {
+  if (!confirm('Are you sure you want to clear AI conversation history?')) return;
+  try {
+    const res = await fetch('/api/ai/clear', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(data.message, 'success');
+      loadChatHistory();
+    }
+  } catch (err) {
+    showToast('Failed to clear chat', 'error');
+  }
+}
+
+function scrollToBottom() {
+  const container = document.getElementById('chatMessages');
+  container.scrollTop = container.scrollHeight;
+}
+
+function copyText(btn) {
+  const card = btn.closest('.chat-bubble-ai');
+  const text = card.querySelector('.ai-content').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = '<i class="fa-solid fa-check text-success"></i>';
+    setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 2000);
+  });
+}
+
+function formatMarkdown(text) {
+  if (!text) return '';
+  let formatted = escapeHtml(text);
+  // Bold
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Italics
+  formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  // Bullet points
+  formatted = formatted.replace(/^• (.*$)/gim, '<div class="ms-3 mb-1">• $1</div>');
+  // Newlines
+  formatted = formatted.replace(/\n/g, '<br>');
+  return formatted;
+}
+
+function formatTime(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+</script>
+{% endblock %}

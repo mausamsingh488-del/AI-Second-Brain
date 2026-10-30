@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Habit Tracker | {{ app_name }}{% endblock %}
+{% block page_title %}Habits & Consistency Matrix{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- TOP HEADER -->
+  <div class="glass-panel p-3 mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <h6 class="fw-bold text-white mb-1"><i class="fa-solid fa-fire me-2" style="color: var(--color-primary);"></i>Habit Streak Accelerator</h6>
+        <small class="text-muted">Build compounding daily momentum with visual consistency tracking</small>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-primary-brain btn-sm" data-bs-toggle="modal" data-bs-target="#addHabitModal">
+          <i class="fa-solid fa-plus me-1"></i>Track New Habit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERALL CONSISTENCY METRICS -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="glass-panel p-3 h-100 d-flex align-items-center gap-3">
+        <div class="p-3 rounded-circle" style="background: rgba(213, 133, 31, 0.15); color: var(--color-primary); font-size: 1.4rem;">
+          <i class="fa-solid fa-fire"></i>
+        </div>
+        <div>
+          <span class="text-muted" style="font-size: 0.75rem;">LONGEST ACTIVE STREAK</span>
+          <h4 class="fw-bold text-white mb-0" id="longestStreakLabel">24 Days</h4>
+          <small style="color: var(--color-secondary);">3.5L Daily Water Intake</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-panel p-3 h-100 d-flex align-items-center gap-3 glass-card-green">
+        <div class="p-3 rounded-circle" style="background: rgba(135, 169, 107, 0.15); color: var(--color-secondary); font-size: 1.4rem;">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <div>
+          <span class="text-muted" style="font-size: 0.75rem;">WEEKLY COMPLETION RATE</span>
+          <h4 class="fw-bold text-white mb-0">87.5%</h4>
+          <small class="text-muted">Target: 85%+</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-panel p-3 h-100 d-flex align-items-center gap-3">
+        <div class="p-3 rounded-circle" style="background: rgba(90, 62, 43, 0.4); color: #ffca7b; font-size: 1.4rem;">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div>
+          <span class="text-muted" style="font-size: 0.75rem;">TODAY'S EXECUTION</span>
+          <h4 class="fw-bold text-white mb-0" id="todayDoneRatioLabel">-- / --</h4>
+          <small class="text-muted">Habits locked in for today</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HABITS LIST -->
+  <div class="row g-3" id="habitsContainer">
+    <div class="col-12 text-center py-5 text-muted">
+      <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading habits...
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD HABIT MODAL -->
+<div class="modal fade" id="addHabitModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glass-panel text-white" style="background: rgba(28, 20, 14, 0.96); border: 1px solid var(--border-glass);">
+      <div class="modal-header border-bottom" style="border-color: rgba(90, 62, 43, 0.35) !important;">
+        <h5 class="modal-title fw-bold">
+          <i class="fa-solid fa-fire me-2" style="color: var(--color-primary);"></i>Create New Habit
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="createHabitForm" onsubmit="handleCreateHabit(event)">
+        <div class="modal-body d-flex flex-column gap-3">
+          <div>
+            <label class="form-label text-muted" style="font-size: 0.8rem;">Habit Name *</label>
+            <input type="text" id="newHabitName" class="form-control bg-dark text-white border-0" placeholder="e.g. Read 5 pages Research Paper" required>
+          </div>
+          <div>
+            <label class="form-label text-muted" style="font-size: 0.8rem;">Description</label>
+            <textarea id="newHabitDesc" class="form-control bg-dark text-white border-0" rows="2" placeholder="Why this matters, target cue, or routine..."></textarea>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label text-muted" style="font-size: 0.8rem;">Category</label>
+              <select id="newHabitCategory" class="form-select bg-dark text-white border-0">
+                <option value="Coding">Coding</option>
+                <option value="Fitness">Fitness</option>
+                <option value="College">College</option>
+                <option value="Personal" selected>Personal</option>
+                <option value="GitHub">GitHub</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label text-muted" style="font-size: 0.8rem;">Icon</label>
+              <select id="newHabitIcon" class="form-select bg-dark text-white border-0">
+                <option value="fa-code">💻 Code</option>
+                <option value="fa-dumbbell">💪 Dumbbell</option>
+                <option value="fa-book-open">📖 Book</option>
+                <option value="fa-tint">💧 Water</option>
+                <option value="fa-peace">🧘 Meditation</option>
+                <option value="fa-bed">😴 Sleep</option>
+                <option value="fa-check-circle" selected>✅ Check</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top" style="border-color: rgba(90, 62, 43, 0.35) !important;">
+          <button type="button" class="btn btn-dark text-muted" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-brain">Start Tracking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/habits.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Voice Assistant | {{ app_name }}{% endblock %}
+{% block page_title %}Voice Memory Station{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+  <div class="row g-4">
+    <!-- Voice Capture Console -->
+    <div class="col-lg-7">
+      <div class="glass-panel p-4 text-center position-relative">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <span class="badge" style="background: rgba(135, 169, 107, 0.2); color: var(--color-secondary); border: 1px solid var(--color-secondary);">
+            <i class="fa-solid fa-microphone-lines me-1"></i>I2S / BROWSER AUDIO CAPTURE
+          </span>
+          <span id="recordingStatusPill" class="text-muted font-mono" style="font-size: 0.78rem;">Status: Ready to listen</span>
+        </div>
+
+        <h3 class="fw-bold text-white mb-2">Speak to your Second Brain</h3>
+        <p class="text-muted mb-4" style="font-size: 0.9rem; max-width: 500px; margin: 0 auto;">
+          Click the microphone button to dictate a reminder, task, college assignment, gym workout, or project thought.
+        </p>
+
+        <!-- Large Glowing Microphone Button -->
+        <div class="voice-mic-container mb-4">
+          <button id="micRecordBtn" class="mic-btn-large" onclick="toggleRecording()" title="Click to start/stop voice recording">
+            <i class="fa-solid fa-microphone" id="micIcon"></i>
+          </button>
+        </div>
+
+        <!-- Recording Timer & Waveform Simulation -->
+        <div class="mb-4">
+          <div id="recordingTimer" class="font-mono display-6 fw-bold text-white mb-2">00:00</div>
+          <div id="waveformVisualizer" class="d-flex align-items-center justify-content-center gap-1" style="height: 28px;">
+            <div class="bg-secondary rounded" style="width: 4px; height: 8px;"></div>
+            <div class="bg-secondary rounded" style="width: 4px; height: 12px;"></div>
+            <div class="bg-secondary rounded" style="width: 4px; height: 6px;"></div>
+            <div class="bg-secondary rounded" style="width: 4px; height: 14px;"></div>
+            <div class="bg-secondary rounded" style="width: 4px; height: 8px;"></div>
+          </div>
+        </div>
+
+        <!-- Audio Playback & Actions -->
+        <div id="audioPlaybackSection" class="p-3 rounded mb-4 d-none" style="background: rgba(45, 33, 23, 0.5); border: 1px solid var(--border-glass);">
+          <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
+            <audio id="audioPlayer" controls class="w-100" style="max-width: 320px;"></audio>
+            <div class="d-flex gap-2">
+              <button id="uploadAudioBtn" class="btn btn-primary-brain btn-sm" onclick="sendRecordedAudio()">
+                <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Transcribe with Whisper
+              </button>
+              <button class="btn btn-dark btn-sm text-danger" onclick="discardRecording()">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instant Preset Simulation Buttons -->
+        <div class="border-top pt-3" style="border-color: rgba(90, 62, 43, 0.35) !important;">
+          <small class="text-muted d-block mb-2 font-mono" style="font-size: 0.72rem;">OR TEST INSTANT VOICE PRESETS (DEMO MODE):</small>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <button class="btn btn-sm btn-dark text-muted" style="border: 1px solid rgba(213, 133, 31, 0.3); font-size: 0.75rem;" onclick="testVoicePreset('Remind me to complete my internship application tomorrow at 10 AM.')">
+              📋 Internship Reminder
+            </button>
+            <button class="btn btn-sm btn-dark text-muted" style="border: 1px solid rgba(135, 169, 107, 0.3); font-size: 0.75rem;" onclick="testVoicePreset('Add urgent task submit the B.Tech minor project synopsis by tomorrow for College.')">
+              🎓 College Assignment
+            </button>
+            <button class="btn btn-sm btn-dark text-muted" style="border: 1px solid rgba(90, 62, 43, 0.5); font-size: 0.75rem;" onclick="testVoicePreset('Log gym workout: Flat bench press 4 sets of 8 reps with 80 kg weight.')">
+              💪 Bench Press Workout
+            </button>
+            <button class="btn btn-sm btn-dark text-muted" style="border: 1px solid rgba(213, 133, 31, 0.3); font-size: 0.75rem;" onclick="testVoicePreset('Add coding task review pull request for ESP32 microphone I2S stream on GitHub.')">
+              💻 GitHub PR Review
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AI Extracted Intelligence Card -->
+    <div class="col-lg-5">
+      <div class="glass-panel p-4 h-100" id="aiResultContainer">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0">
+            <i class="fa-solid fa-microchip me-2" style="color: var(--color-primary);"></i>AI Entity Extraction
+          </h6>
+          <span id="transcriptionModeBadge" class="badge" style="background: rgba(213, 133, 31, 0.2); color: var(--color-primary); border: 1px solid var(--color-primary);">
+            Ready
+          </span>
+        </div>
+
+        <div id="aiPlaceholderPrompt" class="text-center py-5 text-muted">
+          <div class="brand-icon mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.5rem; background: rgba(90, 62, 43, 0.3);">
+            <i class="fa-solid fa-wave-square" style="color: var(--color-secondary);"></i>
+          </div>
+          <p style="font-size: 0.85rem;">
+            Record your voice or click one of the demo presets to see live transcription and AI entity extraction.
+          </p>
+        </div>
+
+        <!-- Live Parsed Intelligence Result (Hidden until transcribed) -->
+        <div id="aiParsedCard" class="d-none">
+          <!-- Raw Transcript Bubble -->
+          <div class="p-3 rounded mb-3" style="background: rgba(30, 22, 16, 0.9); border: 1px solid var(--border-glass);">
+            <small class="text-muted d-block font-mono" style="font-size: 0.7rem;">WHISPER TRANSCRIPTION:</small>
+            <div id="cardRawTranscript" class="text-white fw-semibold mt-1" style="font-size: 0.95rem; line-height: 1.5;"></div>
+          </div>
+
+          <!-- Structured Attributes Grid -->
+          <div class="p-3 rounded mb-4 glass-card-green" style="background: rgba(36, 26, 18, 0.75);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted" style="font-size: 0.75rem;">Action Type:</span>
+              <span id="cardActionType" class="badge" style="background: var(--color-primary); color: #fff;">Task</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted" style="font-size: 0.75rem;">Extracted Title:</span>
+              <strong id="cardTitle" class="text-white text-end" style="font-size: 0.85rem; max-width: 60%;">--</strong>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted" style="font-size: 0.75rem;">Category:</span>
+              <span id="cardCategory" class="badge bg-secondary">Personal</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted" style="font-size: 0.75rem;">Priority:</span>
+              <span id="cardPriority" class="badge badge-priority-medium">Medium</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted" style="font-size: 0.75rem;">Target Date:</span>
+              <span id="cardDate" class="font-mono text-white" style="font-size: 0.82rem;">--</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted" style="font-size: 0.75rem;">Target Time:</span>
+              <span id="cardTime" class="font-mono text-white" style="font-size: 0.82rem;">--</span>
+            </div>
+          </div>
+
+          <!-- 1-Click Action Button -->
+          <div class="d-grid gap-2">
+            <button id="saveExtractedBtn" class="btn btn-secondary-brain py-2" onclick="commitVoiceNoteToDb()">
+              <i class="fa-solid fa-plus-circle me-1"></i>Save into Second Brain Database
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PAST CAPTURED VOICE NOTES HISTORY -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0">
+            <i class="fa-solid fa-clock-rotate-left me-2" style="color: var(--color-secondary);"></i>Voice Memory Bank
+          </h6>
+          <span class="text-muted font-mono" id="voiceNoteCountLabel" style="font-size: 0.75rem;">3 Notes Recorded</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-dark table-borderless align-middle mb-0" style="background: transparent;">
+            <thead>
+              <tr class="text-muted border-bottom" style="border-color: rgba(90, 62, 43, 0.4) !important; font-size: 0.75rem;">
+                <th>TRANSCRIPTION</th>
+                <th>CLASSIFICATION</th>
+                <th>TIMESTAMP</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="voiceNotesHistoryTable">
+              <tr>
+                <td colspan="4" class="text-center py-3 text-muted">Loading voice notes...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+{% endblock %}

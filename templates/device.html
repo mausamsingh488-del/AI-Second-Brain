@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}ESP32 Hardware Node | {{ app_name }}{% endblock %}
+{% block page_title %}ESP32 Hardware Monitor & Terminal{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- TOP HARDWARE STATUS OVERVIEW -->
+  <div class="glass-panel p-3 mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="brand-icon" style="background: linear-gradient(135deg, var(--color-secondary), #5a7d42);">
+          <i class="fa-solid fa-microchip"></i>
+        </div>
+        <div>
+          <h6 class="fw-bold text-white mb-0" id="devName">ESP32-S3 Voice Node</h6>
+          <small class="text-muted font-mono" id="devIp">IP: 192.168.1.150 • Dual-Core Xtensa LX7</small>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="badge" id="devModeBadge" style="background: rgba(135, 169, 107, 0.2); color: var(--color-secondary); border: 1px solid var(--color-secondary);">
+          Simulation Mode
+        </span>
+        <button class="btn btn-sm btn-outline-brain" onclick="triggerAction('sync')">
+          <i class="fa-solid fa-arrows-rotate me-1"></i>Sync Time
+        </button>
+        <button class="btn btn-sm btn-dark text-warning" style="border: 1px solid rgba(213, 133, 31, 0.3);" onclick="triggerAction('restart')">
+          <i class="fa-solid fa-power-off me-1"></i>Restart Node
+        </button>
+        <button class="btn btn-sm btn-secondary-brain" id="devToggleConnBtn" onclick="triggerAction('toggle')">
+          <i class="fa-solid fa-plug me-1"></i>Toggle Connection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDWARE TELEMETRY GAUGES -->
+  <div class="row g-3 mb-4">
+    <!-- Battery -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted" style="font-size: 0.75rem;">BATTERY LEVEL</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="devBattery">92%</h3>
+            <small style="color: var(--color-secondary);"><i class="fa-solid fa-bolt me-1"></i>LiPo 3.7V Powered</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(135, 169, 107, 0.15); color: var(--color-secondary); font-size: 1.4rem;">
+            <i class="fa-solid fa-battery-three-quarters"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wi-Fi Signal Strength -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100 glass-card-green">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted" style="font-size: 0.75rem;">WI-FI RSSI</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="devRssi">-54 dBm</h3>
+            <small class="text-muted font-mono" id="devSsid">SecondBrain_Mesh_5G</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(213, 133, 31, 0.15); color: var(--color-primary); font-size: 1.4rem;">
+            <i class="fa-solid fa-wifi"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Temperature -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted" style="font-size: 0.75rem;">SOC TEMPERATURE</span>
+            <h3 class="fw-bold text-white mb-0 mt-1" id="devTemp">38.4 °C</h3>
+            <small style="color: #ffb04f;">Thermal nominal</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(90, 62, 43, 0.4); color: #ffca7b; font-size: 1.4rem;">
+            <i class="fa-solid fa-temperature-three-quarters"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Device Uptime -->
+    <div class="col-xl-3 col-md-6">
+      <div class="glass-panel p-3 h-100 glass-card-green">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted" style="font-size: 0.75rem;">NODE UPTIME</span>
+            <h3 class="fw-bold text-white mb-0 mt-1 font-mono" id="devUptime">05:14:20</h3>
+            <small class="text-muted" id="devLastSync">Synced 1 min ago</small>
+          </div>
+          <div class="p-3 rounded-circle" style="background: rgba(135, 169, 107, 0.15); color: var(--color-secondary); font-size: 1.4rem;">
+            <i class="fa-solid fa-stopwatch"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE VIRTUAL ESP32 BOARD & ACTIONS -->
+  <div class="row g-4 mb-4">
+    <!-- Visual PCB Card -->
+    <div class="col-lg-6">
+      <div class="esp32-pcb-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="d-flex align-items-center gap-2">
+            <span class="status-dot status-dot-green"></span>
+            <strong class="font-mono text-white" style="font-size: 0.85rem;">ESP32-S3 WROOM-1 N16R8</strong>
+          </div>
+          <span class="badge" style="background: #1e1e1e; color: #87A96B; border: 1px solid #444; font-size: 0.7rem;">
+            I2S &bull; I2C &bull; SPI
+          </span>
+        </div>
+
+        <!-- Realistic Virtual OLED Display -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between text-muted mb-1" style="font-size: 0.7rem;">
+            <span>0.96" SSD1306 OLED (128x64)</span>
+            <span class="font-mono" style="color: var(--color-secondary);">0x3C</span>
+          </div>
+          <div class="esp32-oled-screen" id="virtualOledScreen">
+            <div class="d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
+              <span>WIFI: 5G_OK</span>
+              <span id="oledBatVal">BAT: 92%</span>
+            </div>
+            <div class="my-2 fw-bold" id="oledMainText" style="font-size: 0.95rem; letter-spacing: 0.5px;">
+              AI Second Brain: Ready
+            </div>
+            <div style="font-size: 0.68rem; color: #a4ce82;" id="oledSubText">
+              Listening on INMP441 I2S Mic...
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Components Simulation Row -->
+        <div class="row g-2 text-center font-mono" style="font-size: 0.75rem;">
+          <div class="col-4">
+            <div class="esp32-chip">
+              <i class="fa-solid fa-microchip d-block mb-1 text-warning"></i>
+              <span>ESP32-S3 SoC</span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="esp32-chip">
+              <i class="fa-solid fa-microphone-lines d-block mb-1" style="color: var(--color-secondary);"></i>
+              <span id="devMicStatus">INMP441 I2S</span>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="esp32-chip">
+              <i class="fa-solid fa-bolt d-block mb-1 text-danger"></i>
+              <span>TP4056 Charge</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Hardware Controls & Diagnostics -->
+    <div class="col-lg-6">
+      <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h6 class="fw-bold text-white mb-3">
+            <i class="fa-solid fa-screwdriver-wrench me-2" style="color: var(--color-primary);"></i>Hardware Test Bench
+          </h6>
+
+          <!-- Test Mic -->
+          <div class="p-3 rounded mb-3" style="background: rgba(45, 33, 23, 0.4); border: 1px solid rgba(213, 133, 31, 0.2);">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="text-white d-block" style="font-size: 0.9rem;">Test Digital Microphone</strong>
+                <small class="text-muted">Simulate I2S DMA audio loopback packet capture</small>
+              </div>
+              <button class="btn btn-sm btn-outline-brain" onclick="triggerAction('test_mic')">
+                <i class="fa-solid fa-volume-high me-1"></i>Run Test
+              </button>
+            </div>
+            <div id="micTestResultBox" class="mt-2 font-mono d-none text-muted" style="font-size: 0.75rem;"></div>
+          </div>
+
+          <!-- Test LCD -->
+          <div class="p-3 rounded mb-3" style="background: rgba(45, 33, 23, 0.4); border: 1px solid rgba(135, 169, 107, 0.2);">
+            <strong class="text-white d-block mb-1" style="font-size: 0.9rem;">Push Message to OLED Display</strong>
+            <small class="text-muted d-block mb-2">Send custom telemetry string to the ESP32 screen</small>
+            <div class="input-group">
+              <input type="text" id="customLcdInput" class="form-control bg-dark text-white border-0" placeholder="e.g. Next: Minor Project Presentation" style="font-size: 0.85rem;">
+              <button class="btn btn-secondary-brain btn-sm" onclick="sendLcdMessage()">
+                <i class="fa-solid fa-paper-plane me-1"></i>Send to LCD
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Architecture Flow Banner -->
+        <div class="p-3 rounded" style="background: rgba(20, 15, 11, 0.8); border: 1px solid rgba(90, 62, 43, 0.4);">
+          <small class="text-muted d-block font-mono mb-1" style="font-size: 0.7rem;">EDGE AUDIO PIPELINE:</small>
+          <div class="d-flex align-items-center justify-content-between text-muted" style="font-size: 0.78rem;">
+            <span style="color: #ffca7b;">Voice</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span style="color: var(--color-secondary);">ESP32 I2S</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span style="color: var(--color-primary);">Whisper STT</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span class="text-white">Ollama LLM</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDWARE LOG TERMINAL -->
+  <div class="row">
+    <div class="col-12">
+      <div class="glass-panel p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0 font-mono">
+            <i class="fa-solid fa-terminal me-2 text-warning"></i>ESP32 Serial Communication Bus (115200 Baud)
+          </h6>
+          <span class="text-muted font-mono" style="font-size: 0.75rem;">UART0 / USB CDC Active</span>
+        </div>
+
+        <div class="p-3 rounded font-mono" id="hardwareTerminalLogs" style="background: #090807; border: 1px solid rgba(90, 62, 43, 0.4); min-height: 140px; max-height: 200px; overflow-y: auto; font-size: 0.78rem; line-height: 1.6;">
+          <div class="text-muted">Initializing telemetry monitor...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/device.js') }}"></script>
+{% endblock %}
